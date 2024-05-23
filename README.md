@@ -9,6 +9,6 @@ git status #just to verify the version
 ```
 * replace their "mace" dir from this repo
 
-## Testing with single water molecule (with pbc)
+## Testing with single water molecule (without pbc)
 
 * Test notebook in 'mace/MACE_developer_hariharr.ipynb'
