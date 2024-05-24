@@ -1,6 +1,6 @@
 ## Setup
 
-if you want to run MACE-tutorial notebook, clone MACE-dev version from Nov 17 2023 (this shouldn't matter much since we are running just the forward)
+if you want to run MACE-tutorial notebook, clone MACE-dev version from Nov 17 2023 (this might not be relevant now since we are running just the forward)
 #TO DO: should update to latest version and try
 
 ```
