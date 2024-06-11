@@ -1,4 +1,4 @@
-##Usage
+## Usage
 
 * MACE + Ewald scripts within mace_train folder
 * Example python cli to train
