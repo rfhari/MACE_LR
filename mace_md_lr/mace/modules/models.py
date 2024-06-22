@@ -1103,15 +1103,18 @@ class MACE_Ewald(torch.nn.Module):
         self.use_atom_to_atom_mp = atom_to_atom_cutoff is not None
         hidden_channels = hidden_irreps.count(o3.Irrep(0, 1)) # <------ Embedding size of MACE, based on scalar features 
         
-        print("use_pbc:", self.use_pbc, use_pbc)
-        print("use_ewald:", self.use_ewald)
+        # print("use_pbc:", self.use_pbc, use_pbc)
+        # print("use_ewald:", self.use_ewald)
 
         if self.use_ewald:
+            print("ewald is activated")
             if self.use_pbc:
+                print("pbc is activated")
                 # Integer values to define box of k-lattice indices
                 self.num_k_x = ewald_hyperparams["num_k_x"]
                 self.num_k_y = ewald_hyperparams["num_k_y"]
                 self.num_k_z = ewald_hyperparams["num_k_z"]
+                print("nkx, nky, nkz:", self.num_k_x, self.num_k_y, self.num_k_z)
                 self.delta_k = None
             else:
                 self.k_cutoff = ewald_hyperparams["k_cutoff"]
@@ -1135,6 +1138,7 @@ class MACE_Ewald(torch.nn.Module):
                     self.num_k_y,
                     self.num_k_z,
                 )
+                
                 self.k_rbf_values = None
                 self.delta_k = None
 
