@@ -100,8 +100,8 @@ class EwaldBlock(torch.nn.Module):
         # Dot products k^Tx and damping values: need to be computed only once per structure
         # Ewald block in first interaction block gets None as input, therefore computes these
         # values and then passes them on to Ewald blocks in later interaction blocks
-        dot: Optional[torch.Tensor] = None,
-        sinc_damping: Optional[torch.Tensor] = None,
+        dot: torch.Tensor,
+        sinc_damping: torch.Tensor,
         ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
 
         hres = self.pre_residual(h)

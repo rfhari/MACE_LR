@@ -8,6 +8,9 @@ from typing import Any, Callable, Dict, List, Optional, Type, Union
 
 import numpy as np
 import torch
+
+torch.set_default_dtype(torch.float64)
+
 from e3nn import o3
 from e3nn.util.jit import compile_mode
 from .ewald_block import EwaldBlock
@@ -1320,7 +1323,6 @@ class MACE_Ewald(torch.nn.Module):
             else:
                 self.readouts.append(LinearReadoutBlock(hidden_irreps))
 
-
     def forward(
         self,
         data: Dict[str, torch.Tensor],
@@ -1362,7 +1364,8 @@ class MACE_Ewald(torch.nn.Module):
                 #     .unsqueeze(0)
                 #     .expand(batch_size, -1, -1)
                 # )
-                print("k_grid shape if periodic:", k_grid.shape)
+
+                print("k_grid shape if periodic:", k_grid.shape, k_grid.dtype)
             else:
                 # print("self.k_grid shape if NOT periodic:", self.k_grid.shape)
                 # if self.k_grid is None:
@@ -1370,7 +1373,7 @@ class MACE_Ewald(torch.nn.Module):
                 if not hasattr(self, 'k_grid_original'):
                     raise RuntimeError("k_grid_original is BHK born bugg solver.")
                 k_grid = (self.k_grid_original.to(batch.device).unsqueeze(0).expand(batch_size, -1, -1))
-                # print("k_grid shape if NOT periodic:", k_grid.shape)
+                print("k_grid shape if NOT periodic:", k_grid.shape, k_grid.dtype)
         else:
             k_grid = torch.torch.empty(0)
 
@@ -1466,7 +1469,7 @@ class MACE_Ewald(torch.nn.Module):
                             node_feats[:, :self.slice_indices[enum_ind]], pos, k_grid, batch_size, batch, dot, sinc_damping
                         )
                     else:
-                        node_feats_ewald = torch.tensor(0, dtype=torch.float32)
+                        node_feats_ewald = torch.tensor(0, dtype=torch.float64)
 
                     # if self.use_atom_to_atom_mp:
                     #     dx_at = self.interactions_at[enum_ind](
