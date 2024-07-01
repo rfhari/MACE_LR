@@ -9,7 +9,7 @@ from typing import Any, Callable, Dict, List, Optional, Type, Union
 import numpy as np
 import torch
 
-torch.set_default_dtype(torch.float64)
+# torch.set_default_dtype(torch.float64)
 
 from e3nn import o3
 from e3nn.util.jit import compile_mode
@@ -1098,7 +1098,7 @@ class MACE_Ewald(torch.nn.Module):
         super().__init__()
         self.slice_indices = []
         self.use_pbc = use_pbc
-        self.k_grid_original = None
+        # self.k_grid_original = None
     ############################################ EwaldMP layers ######################################################               
         # Parse Ewald hyperparams
         self.use_ewald = ewald_hyperparams is not None
@@ -1352,11 +1352,12 @@ class MACE_Ewald(torch.nn.Module):
                 # Compute reciprocal lattice basis of structure
                 k_cell, _ = x_to_k_cell(data["cell"], batch_size)
                 # Translate lattice indices to k-vectors
-                print("k_index_product_set shape if periodic:",  self.k_index_product_set.shape, self.k_index_product_set.dtype)
-                print("k_cell shape if periodic:", k_cell.shape, k_cell.dtype)
-
+                # print("k_index_product_set shape if periodic:",  self.k_index_product_set.shape, self.k_index_product_set.dtype)
+                # print("k_cell shape if periodic:", k_cell.shape, k_cell.dtype)
+                if not hasattr(self, 'k_index_product_set'):
+                    raise RuntimeError("k_index_product_set seems wrong.")
                 k_grid = torch.matmul(
-                    self.k_index_product_set.to(batch.device), k_cell
+                    self.k_index_product_set.type(torch.float64).to(batch.device), k_cell
                 )
 
                 # k_grid = (
@@ -1365,15 +1366,18 @@ class MACE_Ewald(torch.nn.Module):
                 #     .expand(batch_size, -1, -1)
                 # )
 
-                print("k_grid shape if periodic:", k_grid.shape, k_grid.dtype)
+                # print("k_grid shape if periodic:", k_grid.shape, k_grid.dtype)
             else:
                 # print("self.k_grid shape if NOT periodic:", self.k_grid.shape)
                 # if self.k_grid is None:
                    # raise ValueError("k_grid must be provided if use_pbc is False")
                 if not hasattr(self, 'k_grid_original'):
-                    raise RuntimeError("k_grid_original is BHK born bugg solver.")
+                    raise RuntimeError("k_grid_original seems wrong.")
+                if self.k_grid_original is None:
+                    raise RuntimeError("k_grid_original seems None.")
+                
                 k_grid = (self.k_grid_original.to(batch.device).unsqueeze(0).expand(batch_size, -1, -1))
-                print("k_grid shape if NOT periodic:", k_grid.shape, k_grid.dtype)
+                # print("k_grid shape if NOT periodic:", k_grid.shape, k_grid.dtype)
         else:
             k_grid = torch.torch.empty(0)
 

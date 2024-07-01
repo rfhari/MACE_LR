@@ -44,9 +44,7 @@ from mace.tools.scripts_utils import (
 from mace.tools.slurm_distributed import DistributedEnvironment
 from mace.tools.utils import AtomicNumberTable
 
-import torch
-torch.set_default_dtype(torch.float64)
-
+# torch.set_default_dtype(torch.float64)
 
 def main() -> None:
     """
@@ -56,12 +54,11 @@ def main() -> None:
     print("args from main func in cli/run_train.py:", args)
     run(args)
 
-
 def run(args: argparse.Namespace) -> None:
     """
     This script runs the training/fine tuning for mace
     """
-    torch.set_default_dtype(torch.float64)    
+    # torch.set_default_dtype(torch.float64)    
     tag = tools.get_tag(name=args.name, seed=args.seed)
     print("args:", tag, args.use_pbc)
     if args.distributed:
@@ -433,6 +430,7 @@ def run(args: argparse.Namespace) -> None:
             use_pbc=args.use_pbc,
         )
 
+
     print("args.use_pbc:", args.use_pbc)
     model: torch.nn.Module
 
@@ -465,7 +463,9 @@ def run(args: argparse.Namespace) -> None:
                 num_k_x = 4,                              #check: num_kx, num_ky, num_kz mean
                 num_k_y = 4,
                 num_k_z = 4,
+                dtype_ewald = args.default_dtype,
                 )
+        
         additional_params = dict(
             # pair_repulsion=args.pair_repulsion,
             # distance_transform=args.distance_transform,
@@ -479,7 +479,7 @@ def run(args: argparse.Namespace) -> None:
             # radial_type=args.radial_type,
             )
         print("model_config under MACE_ewald:", model_config)
-
+        # ewald_hyperparameters = args.ewald_params
         model_config.update(**additional_params)
         model = modules.MACE_Ewald(**model_config, ewald_hyperparams=ewald_hyperparams)
         #model = modules.MACE_Ewald(**model_config)
