@@ -72,6 +72,14 @@ class MACECalculator(Calculator):
                 "forces",
                 "stress",
             ]
+        elif model_type == "MACE_Ewald":
+            self.implemented_properties = [
+                "energy",
+                "free_energy",
+                "node_energy",
+                "forces",
+                "stress",
+            ]
         elif model_type == "DipoleMACE":
             self.implemented_properties = ["dipole"]
         elif model_type == "EnergyDipoleMACE":
@@ -105,7 +113,7 @@ class MACECalculator(Calculator):
         self.num_models = len(model_paths)
         if len(model_paths) > 1:
             print(f"Running committee mace with {len(model_paths)} models")
-            if model_type in ["MACE", "EnergyDipoleMACE"]:
+            if model_type in ["MACE", "MACE_Ewald", "EnergyDipoleMACE"]:
                 self.implemented_properties.extend(
                     ["energies", "energy_var", "forces_comm", "stress_var"]
                 )
@@ -174,7 +182,7 @@ class MACECalculator(Calculator):
         :return: tuple of torch tensors
         """
         dict_of_tensors = {}
-        if model_type in ["MACE", "EnergyDipoleMACE"]:
+        if model_type in ["MACE", "MACE_Ewald", "EnergyDipoleMACE"]:
             energies = torch.zeros(num_models, device=self.device)
             node_energy = torch.zeros(num_models, num_atoms, device=self.device)
             forces = torch.zeros(num_models, num_atoms, 3, device=self.device)
@@ -230,7 +238,7 @@ class MACECalculator(Calculator):
 
         batch_base = self._atoms_to_batch(atoms)
 
-        if self.model_type in ["MACE", "EnergyDipoleMACE"]:
+        if self.model_type in ["MACE", "MACE_Ewald", "EnergyDipoleMACE"]:
             batch = self._clone_batch(batch_base)
             node_e0 = self.models[0].atomic_energies_fn(batch["node_attrs"])
             compute_stress = not self.use_compile
@@ -247,7 +255,7 @@ class MACECalculator(Calculator):
                 compute_stress=compute_stress,
                 training=self.use_compile,
             )
-            if self.model_type in ["MACE", "EnergyDipoleMACE"]:
+            if self.model_type in ["MACE", "MACE_Ewald", "EnergyDipoleMACE"]:
                 ret_tensors["energies"][i] = out["energy"].detach()
                 ret_tensors["node_energy"][i] = (out["node_energy"] - node_e0).detach()
                 ret_tensors["forces"][i] = out["forces"].detach()
@@ -257,7 +265,7 @@ class MACECalculator(Calculator):
                 ret_tensors["dipole"][i] = out["dipole"].detach()
 
         self.results = {}
-        if self.model_type in ["MACE", "EnergyDipoleMACE"]:
+        if self.model_type in ["MACE", "MACE_Ewald", "EnergyDipoleMACE"]:
             self.results["energy"] = (
                 torch.mean(ret_tensors["energies"], dim=0).cpu().item()
                 * self.energy_units_to_eV

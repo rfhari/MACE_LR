@@ -233,7 +233,7 @@ def x_to_k_cell(cells: torch.Tensor, batch_size: int):
     b3 = 2 * np.pi * cross_a1a2 / vol
 
     bcells = torch.stack((b1, b2, b3), dim=1)
-    bcells = bcells.type(torch.float64)
+    # bcells = bcells.type(torch.float32)
 
     # print("bcells:", bcells.shape, bcells.dtype, "vol:", vol.shape)
 
@@ -242,16 +242,16 @@ def x_to_k_cell(cells: torch.Tensor, batch_size: int):
 def get_k_index_product_set(num_k_x: float, num_k_y: float, num_k_z: float):
     # Get a box of k-lattice indices around (0,0,0)
     k_index_sets = (
-        torch.arange(-num_k_x, num_k_x + 1, dtype=torch.float64),
-        torch.arange(-num_k_y, num_k_y + 1, dtype=torch.float64),
-        torch.arange(-num_k_z, num_k_z + 1, dtype=torch.float64),
+        torch.arange(-num_k_x, num_k_x + 1),#, dtype=torch.float64),
+        torch.arange(-num_k_y, num_k_y + 1),#, dtype=torch.float64),
+        torch.arange(-num_k_z, num_k_z + 1),# dtype=torch.float64),
     )
     k_index_product_set = torch.cartesian_prod(*k_index_sets)
     # Cut the box in half (we will always assume point symmetry)
     k_index_product_set = k_index_product_set[
         k_index_product_set.shape[0] // 2 + 1 :
     ]
-
+    print("k_index_product_set from utils:", k_index_product_set.dtype)
     # Amount of k-points
     num_k_degrees_of_freedom = k_index_product_set.shape[0]
     
@@ -266,7 +266,7 @@ def get_k_voxel_grid(k_cutoff: float, delta_k: float, num_k_rbf: int):
 
     # Orthogonal k-space basis, norm delta_k
     k_cell = torch.tensor(
-        [[delta_k, 0, 0], [0, delta_k, 0], [0, 0, delta_k]], dtype=torch.float64)
+        [[delta_k, 0, 0], [0, delta_k, 0], [0, 0, delta_k]])#, dtype=torch.float64)
     # print("k_cell shape if NOT periodic:", k_cell.shape, k_cell.dtype)
 
     # Translate lattice indices into k-vectors
